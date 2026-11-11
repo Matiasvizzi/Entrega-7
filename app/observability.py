@@ -24,9 +24,21 @@ def init_observability() -> bool:
         print("ℹ️  Observabilidad desactivada (OBSERVABILIDAD=off)")
         return False
     try:
-        from phoenix.otel import register
+        from phoenix.otel import BatchSpanProcessor, register
 
-        register(project_name=PHOENIX_PROJECT, endpoint=PHOENIX_ENDPOINT, auto_instrument=True, batch=True)
+        class SinPolling(BatchSpanProcessor):
+            """FastAPI emite spans nativos por cada request. El polling GET /tasks/{id} y /health son
+            miles de spans de ~1 ms que ensucian el dashboard y falsean p50/p99, asi que no se
+            exportan. Si se exportan POST /tasks, /approve y todo el grafo (nodos, LLM, tools)."""
+
+            def on_end(self, span) -> None:
+                if span.name.startswith(("GET ", "fastapi.")):
+                    return
+                super().on_end(span)
+
+        tracer_provider = register(project_name=PHOENIX_PROJECT, endpoint=PHOENIX_ENDPOINT, auto_instrument=True)
+        # agregar el procesador reemplaza al por defecto (ver aviso de phoenix.otel.register)
+        tracer_provider.add_span_processor(SinPolling(endpoint=PHOENIX_ENDPOINT, protocol="http/protobuf"))
         _activa = True
         print(f"🔭 Trazas -> Phoenix ({PHOENIX_ENDPOINT}) | proyecto '{PHOENIX_PROJECT}'")
     except Exception as exc:  # observabilidad nunca debe tumbar la API

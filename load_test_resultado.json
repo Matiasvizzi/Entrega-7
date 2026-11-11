@@ -1,0 +1,59 @@
+{
+  "resumen": {
+    "concurrencia": 5,
+    "tiempo_total_s": 220.98,
+    "ok": 5,
+    "fallidos": 0,
+    "latencia_p50_s": 176.57,
+    "latencia_p95_s": 219.69,
+    "latencia_max_s": 220.98,
+    "post_max_ms": 1091.8
+  },
+  "peticiones": [
+    {
+      "n": 1,
+      "job_id": "5c23be35a753",
+      "query": "Museos y parrillas en Recoleta a menos de 2 km",
+      "status": "DONE",
+      "post_ms": 14.0,
+      "latencia_s": 220.98,
+      "error": null
+    },
+    {
+      "n": 2,
+      "job_id": "44a7cc7301ed",
+      "query": "Bares en Palermo a 1 km",
+      "status": "DONE",
+      "post_ms": 1007.5,
+      "latencia_s": 176.57,
+      "error": null
+    },
+    {
+      "n": 3,
+      "job_id": "7bb502afa32f",
+      "query": "Museos en San Telmo a 2 km",
+      "status": "DONE",
+      "post_ms": 1085.6,
+      "latencia_s": 214.53,
+      "error": null
+    },
+    {
+      "n": 4,
+      "job_id": "e55bd50431e5",
+      "query": "Restaurantes y cafés cerca del Obelisco a 1 km",
+      "status": "DONE",
+      "post_ms": 1085.0,
+      "latencia_s": 78.35,
+      "error": null
+    },
+    {
+      "n": 5,
+      "job_id": "bd9ef60488e7",
+      "query": "Museos y bares en Puerto Madero a 2 km",
+      "status": "DONE",
+      "post_ms": 1091.8,
+      "latencia_s": 149.66,
+      "error": null
+    }
+  ]
+}

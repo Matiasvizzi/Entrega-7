@@ -45,17 +45,35 @@ def main(phoenix: str, proyecto: str) -> None:
             pagina.screenshot(path=str(SALIDA / nombre))
             print("📸", nombre)
 
-        foto(f"{phoenix}/projects/{pid}", "01_proyecto_resumen_latencia_costo.png")
+        # La vista Spans solo suma los spans raiz (POST /tasks, sin costo); el costo vive en los spans LLM,
+        # asi que el resumen de costo/latencia se toma de la pestana Metrics.
+        foto(f"{phoenix}/projects/{pid}/metrics", "01_metricas_costo_tokens_latencia.png", espera_ms=6000)
         foto(f"{phoenix}/projects/{pid}/traces", "02_trazas_lista.png")
         foto(f"{phoenix}/projects/{pid}/sessions", "03_sesiones_por_job.png")
 
         # Detalle de una traza: abre la primera fila de la tabla (spans de cada nodo del grafo)
         pagina.goto(f"{phoenix}/projects/{pid}/traces", wait_until="networkidle")
         pagina.wait_for_timeout(3000)
-        pagina.locator("table tbody tr").first.click()
+        # (una traza completa de la prueba de carga, con llamadas al LLM y su costo; la mas reciente
+        # suele ser una reanudacion de HITL, sin LLM)
+        completa = pagina.locator("table tbody tr", has_text="parrillas en Recoleta")
+        (completa if completa.count() else pagina.locator("table tbody tr")).first.click()
         pagina.wait_for_timeout(4000)
         pagina.screenshot(path=str(SALIDA / "04_traza_detalle_spans.png"))
         print("📸 04_traza_detalle_spans.png")
+
+        # Traza de una tarea critica (HITL): contiene el nodo aprobacion_humana y la accion ejecutada
+        pagina.goto(f"{phoenix}/projects/{pid}/traces", wait_until="networkidle")
+        pagina.wait_for_timeout(3000)
+        fila = pagina.locator("table tbody tr", has_text="Reservame")
+        if fila.count():
+            fila.first.click()
+            pagina.wait_for_timeout(3000)
+            # el arbol de spans esta colapsado: buscar el nodo de aprobacion en el buscador de la traza
+            pagina.get_by_placeholder("Search trace").fill("aprobacion_humana")
+            pagina.wait_for_timeout(2000)
+            pagina.screenshot(path=str(SALIDA / "05_traza_hitl_aprobacion_humana.png"))
+            print("📸 05_traza_hitl_aprobacion_humana.png")
         navegador.close()
 
 
