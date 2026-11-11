@@ -1,0 +1,7 @@
+-r requirements.txt
+pytest
+pytest-asyncio
+fakeredis
+# Servidor de observabilidad y capturas del dashboard (entorno aparte recomendado: .venv-phoenix)
+# arize-phoenix
+# playwright

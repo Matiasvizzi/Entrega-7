@@ -1,0 +1,27 @@
+# docker compose up --build
+#   api      -> http://localhost:8000/docs
+#   phoenix  -> http://localhost:6006   (dashboard de trazas, tokens, costo y latencia)
+#   redis    -> estado de los jobs + checkpoints de LangGraph
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    ports: ["6006:6006", "4317:4317"]
+
+  api:
+    build: .
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      PHOENIX_COLLECTOR_ENDPOINT: http://phoenix:6006/v1/traces
+    ports: ["8000:8000"]
+    depends_on:
+      redis: { condition: service_healthy }
+      phoenix: { condition: service_started }
